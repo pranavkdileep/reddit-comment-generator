@@ -13,7 +13,8 @@ Generate authentic, human-sounding Reddit comments from a post title, body, and 
 
 ## Screenshot
 
-![App Screenshot](https://placehold.co/1600x900/111827/F59E0B?text=Reddit+Comment+Generator+Screenshot)
+![App Screenshot](https://github.com/user-attachments/assets/0c2771bd-730c-49d8-9bf3-9ce485bd92f6)
+
 
 ## Project Details
 
