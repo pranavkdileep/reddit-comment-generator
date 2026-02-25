@@ -86,3 +86,91 @@ export async function generateCommentAction(
     return { error: 'Failed to generate comment. Please try again.' };
   }
 }
+
+export async function generateCommentActionGemma(input: GenerateCommentInput): Promise<GenerateCommentResult> {
+  const { title, body, image } = input;
+
+  if (!title && !body && !image) {
+    return { error: 'Please provide at least a title, body, or image.' };
+  }
+
+  try {
+    const apiKey = process.env.NVIDIA_API_KEY;
+    if (!apiKey) {
+      return { error: 'NVIDIA API key is not configured.' };
+    }
+
+    const postText = [title?.trim(), body?.trim()].filter(Boolean).join('\n\n');
+
+    const systemPrompt = `
+You generate short, human-like Reddit comments.
+
+STYLE:
+- Informal, practical, easy to understand
+- Sound like a real redditor giving advice
+- Keep it short (1-4 sentences)
+- Avoid legal or professional jargon
+- Do not over explain
+- Use same language as the post
+- Occasionally simulate tiny human imperfections
+  (minor lowercase starts, small filler words like imo, tbh, kinda)
+
+RULES:
+- No emojis unless absolutely natural
+- No dashes, use simple punctuation
+- No marketing or AI-style phrasing
+- No long paragraphs
+- Output ONLY the comment text.
+`.trim();
+
+    const userContent: Array<
+      { type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }
+    > = [{ type: 'text', text: `Reddit post:\n${postText}` }];
+
+    if (image?.data && image?.mimeType) {
+      userContent.push({
+        type: 'image_url',
+        image_url: {
+          url: `data:${image.mimeType};base64,${image.data}`,
+        },
+      });
+    }
+
+    const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'google/gemma-3-27b-it',
+        temperature: 0.7,
+        max_tokens: 120,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userContent },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const details = await response.text();
+      console.error('Gemma API error:', response.status, details);
+      return { error: 'Failed to generate comment. Please try again.' };
+    }
+
+    const data = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
+    const comment = data.choices?.[0]?.message?.content?.trim();
+
+    if (!comment) {
+      return { error: 'No comment was generated. Please try again.' };
+    }
+
+    return { comment };
+  } catch (error) {
+    console.error('Error generating comment with Gemma:', error);
+    return { error: 'Failed to generate comment. Please try again.' };
+  }
+}

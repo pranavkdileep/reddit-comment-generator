@@ -12,7 +12,9 @@ import {
   AlertCircle,
   Check
 } from 'lucide-react';
-import { generateCommentAction } from './actions';
+import { generateCommentAction, generateCommentActionGemma } from './actions';
+
+type ModelOption = 'gemini' | 'gemma';
 
 export default function Home() {
   const [title, setTitle] = useState('');
@@ -20,6 +22,7 @@ export default function Home() {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [generatedComment, setGeneratedComment] = useState('');
+  const [selectedModel, setSelectedModel] = useState<ModelOption>('gemini');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
@@ -69,7 +72,12 @@ export default function Home() {
     setGeneratedComment('');
 
     try {
-      const result = await generateCommentAction({
+      const action =
+        selectedModel === 'gemma'
+          ? generateCommentActionGemma
+          : generateCommentAction;
+
+      const result = await action({
         title,
         body,
         image:
@@ -119,6 +127,36 @@ export default function Home() {
               </h2>
               
               <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">
+                    Model
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 rounded-xl border border-zinc-800 bg-zinc-950 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedModel('gemini')}
+                      className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                        selectedModel === 'gemini'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                      }`}
+                    >
+                      Gemini
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedModel('gemma')}
+                      className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors cursor-pointer ${
+                        selectedModel === 'gemma'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                      }`}
+                    >
+                      Gemma
+                    </button>
+                  </div>
+                </div>
+
                 <div>
                   <label htmlFor="title" className="block text-sm font-medium text-zinc-400 mb-1">
                     Post Title
@@ -283,7 +321,9 @@ export default function Home() {
         </div>
         
         <footer className="mt-12 text-center text-zinc-600 text-sm">
-          <p>Powered by Gemini 2.5 Flash • Built with Next.js</p>
+          <p>
+            Powered by {selectedModel === 'gemma' ? 'Gemma 3 27B (NVIDIA)' : 'Gemini 3 Flash'} • Built with Next.js
+          </p>
         </footer>
       </div>
     </main>
