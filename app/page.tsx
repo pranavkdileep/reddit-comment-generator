@@ -62,7 +62,27 @@ export default function Home() {
   };
 
   const generateComment = async () => {
-    if (!title && !body && !image) {
+    const rawTitle = title.trim();
+    const rawBody = body;
+    let normalizedTitle = rawTitle;
+    let normalizedBody = rawBody;
+
+    if (!rawTitle && rawBody.trim()) {
+      const bodyLines = rawBody.split(/\r?\n/);
+      const firstLineIndex = bodyLines.findIndex((line) => line.trim().length > 0);
+
+      if (firstLineIndex !== -1) {
+        normalizedTitle = bodyLines[firstLineIndex].trim();
+        normalizedBody = bodyLines
+          .filter((_, index) => index !== firstLineIndex)
+          .join('\n')
+          .replace(/^\s*\n/, '');
+        setTitle(normalizedTitle);
+        setBody(normalizedBody);
+      }
+    }
+
+    if (!normalizedTitle && !normalizedBody.trim() && !image) {
       setError('Please provide at least a title, body, or image.');
       return;
     }
@@ -78,8 +98,8 @@ export default function Home() {
           : generateCommentAction;
 
       const result = await action({
-        title,
-        body,
+        title: normalizedTitle,
+        body: normalizedBody,
         image:
           image && imagePreview
             ? {
