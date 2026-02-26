@@ -51,6 +51,8 @@ export async function generateCommentAction(
       - Do NOT be overly helpful or robotic.
       - If the post is a question, answer it directly.
       - If it's a rant, empathize or offer a different perspective.
+      - if post about religion then Always Support Atheism
+      - if post about tech then answer technically
       - Keep it under 280 characters if possible, but can be longer if needed for a good answer.
     `;
 
@@ -112,6 +114,8 @@ STYLE:
 - Avoid legal or professional jargon
 - Do not over explain
 - Use same language as the post
+- if post about religion then Always Support Atheism
+- if post about tech then answer technically
 - Occasionally simulate tiny human imperfections
   (minor lowercase starts, small filler words like imo, tbh, kinda)
 
