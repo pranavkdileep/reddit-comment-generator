@@ -22,7 +22,7 @@ export default function Home() {
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [generatedComment, setGeneratedComment] = useState('');
-  const [selectedModel, setSelectedModel] = useState<ModelOption>('gemini');
+  const [selectedModel, setSelectedModel] = useState<ModelOption>('gemma');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
