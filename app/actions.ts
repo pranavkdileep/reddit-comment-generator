@@ -147,9 +147,10 @@ RULES:
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'google/gemma-3-27b-it',
-        temperature: 0.7,
-        max_tokens: 120,
+        model: 'moonshotai/kimi-k2.5',
+        temperature: 1.00,
+        max_tokens: 16384,
+        chat_template_kwargs: {thinking:false},
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userContent },
